@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AgroFusion  — Smart Farming Intelligence</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --soil:#1a0f00;
+      --earth: #2d1a05;
+      --moss: #1e3a1e;
+      --leaf: #2d5a27;
+      --sprout: #4a8c3f;
+      --lime: #7ec850;
+      --gold: #f5c842;
+      --amber: #e8941a;
+      --cream: #f5f0e8;
+      --fog: #d4cfc6;
+      --white: #fdfcf9;
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--soil);
+      color: var(--cream);
+      overflow-x: hidden;
+    }
+
+    /* ── NOISE TEXTURE OVERLAY ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.6;
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 1.2rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(26, 15, 0, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(126, 200, 80, 0.15);
+    }
+
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--lime);
+      letter-spacing: -0.02em;
+    }
+    .logo span { color: var(--gold); }
+
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+    }
+    .nav-links a {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--fog);
+      text-decoration: none;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--lime); }
+
+    .nav-cta {
+      background: var(--lime);
+      color: var(--soil);
+      padding: 0.55rem 1.4rem;
+      border-radius: 2px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-decoration: none;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .nav-cta:hover { background: var(--gold); transform: translateY(-1px); }
+
+    /* ── HERO ── */
+    .hero {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      padding: 8rem 4rem 4rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Radial background glow */
+    .hero::after {
+      content: '';
+      position: absolute;
+      top: -20%;
+      right: -10%;
+      width: 700px;
+      height: 700px;
+      background: radial-gradient(circle, rgba(78,140,63,0.18) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .hero-left { position: relative; z-index: 2; }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: rgba(78, 140, 63, 0.15);
+      border: 1px solid rgba(126, 200, 80, 0.3);
+      padding: 0.4rem 1rem;
+      border-radius: 2px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      color: var(--lime);
+      text-transform: uppercase;
+      margin-bottom: 2rem;
+      animation: fadeSlideUp 0.8s ease both;
+    }
+    .badge-dot {
+      width: 6px; height: 6px;
+      background: var(--lime);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(3rem, 5vw, 5rem);
+      font-weight: 900;
+      line-height: 1.05;
+      letter-spacing: -0.03em;
+      color: var(--white);
+      margin-bottom: 1.5rem;
+      animation: fadeSlideUp 0.8s 0.1s ease both;
+    }
+    h1 em {
+      font-style: italic;
+      color: var(--lime);
+    }
+    h1 .gold { color: var(--gold); }
+
+    .hero-sub {
+      font-size: 1.1rem;
+      font-weight: 300;
+      color: var(--fog);
+      line-height: 1.7;
+      max-width: 480px;
+      margin-bottom: 2.5rem;
+      animation: fadeSlideUp 0.8s 0.2s ease both;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      animation: fadeSlideUp 0.8s 0.3s ease both;
+    }
+
+    .btn-primary {
+      background: var(--lime);
+      color: var(--soil);
+      padding: 0.9rem 2rem;
+      border-radius: 2px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: all 0.3s;
+      border: 2px solid var(--lime);
+    }
+    .btn-primary:hover {
+      background: var(--gold);
+      border-color: var(--gold);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(126,200,80,0.25);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--cream);
+      padding: 0.9rem 2rem;
+      border-radius: 2px;
+      font-family: 'Space Mono', monospace;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-decoration: none;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 2px solid rgba(212,207,198,0.3);
+      transition: all 0.3s;
+    }
+    .btn-outline:hover {
+      border-color: var(--lime);
+      color: var(--lime);
+      transform: translateY(-2px);
+    }
+
+    /* Hero right — stats panel */
+    .hero-right {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding-left: 4rem;
+      animation: fadeSlideUp 0.8s 0.4s ease both;
+    }
+
+    .stat-card {
+      background: rgba(45, 26, 5, 0.7);
+      border: 1px solid rgba(126,200,80,0.15);
+      border-radius: 4px;
+      padding: 1.4rem 1.8rem;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      backdrop-filter: blur(8px);
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .stat-card:hover {
+      border-color: rgba(126,200,80,0.5);
+      transform: translateX(6px);
+    }
+
+    .stat-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+    .stat-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--lime);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.8rem;
+      color: var(--fog);
+      margin-top: 0.2rem;
+    }
+
+    /* ── MARQUEE ── */
+    .marquee-wrap {
+      background: var(--leaf);
+      padding: 0.75rem 0;
+      overflow: hidden;
+      border-top: 1px solid rgba(126,200,80,0.2);
+      border-bottom: 1px solid rgba(126,200,80,0.2);
+    }
+    .marquee-track {
+      display: flex;
+      gap: 3rem;
+      animation: marquee 25s linear infinite;
+      white-space: nowrap;
+    }
+    .marquee-item {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      color: var(--cream);
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+    .marquee-item::before { content: '◆'; color: var(--gold); font-size: 0.5rem; }
+
+    /* ── FEATURES ── */
+    .features {
+      padding: 7rem 4rem;
+      position: relative;
+    }
+
+    .section-label {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--lime);
+      margin-bottom: 1rem;
+    }
+
+    .section-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1.15;
+      margin-bottom: 1rem;
+    }
+
+    .section-sub {
+      color: var(--fog);
+      font-size: 1rem;
+      max-width: 500px;
+      line-height: 1.7;
+      margin-bottom: 4rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-template-rows: auto auto;
+      gap: 1.5rem;
+    }
+
+    .feat-card {
+      background: var(--earth);
+      border: 1px solid rgba(126,200,80,0.1);
+      border-radius: 6px;
+      padding: 2.2rem;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s;
+      text-decoration: none;
+      display: block;
+      cursor: pointer;
+    }
+    .feat-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent, var(--lime));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s;
+    }
+    .feat-card:hover::before { transform: scaleX(1); }
+    .feat-card:hover {
+      border-color: rgba(126,200,80,0.35);
+      transform: translateY(-4px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+   
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.feat-card {
+  grid-column: span 1; /* all cards equal size */
+}
+
+
+    .feat-card:nth-child(1) { --accent: #7ec850; }
+    .feat-card:nth-child(2) { --accent: #f5c842; }
+    .feat-card:nth-child(3) { --accent: #e8941a; }
+    .feat-card:nth-child(4) { --accent: #4ab8c8; }
+    .feat-card:nth-child(5) { --accent: #c84a7e; }
+
+    .feat-number {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      color: var(--fog);
+      letter-spacing: 0.15em;
+      margin-bottom: 1.5rem;
+      opacity: 0.6;
+    }
+
+    .feat-icon {
+      font-size: 2.4rem;
+      margin-bottom: 1.2rem;
+      display: block;
+    }
+
+    .feat-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.8rem;
+      line-height: 1.3;
+    }
+
+    .feat-desc {
+      font-size: 0.88rem;
+      color: var(--fog);
+      line-height: 1.7;
+      margin-bottom: 1.5rem;
+    }
+
+    .feat-tag {
+      display: inline-block;
+      background: rgba(126,200,80,0.1);
+      border: 1px solid rgba(126,200,80,0.2);
+      color: var(--lime);
+      font-family: 'Space Mono', monospace;
+      font-size: 0.6rem;
+      letter-spacing: 0.1em;
+      padding: 0.3rem 0.7rem;
+      border-radius: 2px;
+      text-transform: uppercase;
+    }
+
+    .feat-arrow {
+      position: absolute;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      font-size: 1.2rem;
+      color: var(--fog);
+      opacity: 0;
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .feat-card:hover .feat-arrow {
+      opacity: 1;
+      transform: translate(3px, -3px);
+    }
+
+    /* ── HOW IT WORKS ── */
+    .how {
+      padding: 7rem 4rem;
+      background: var(--earth);
+      position: relative;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+      margin-top: 4rem;
+      position: relative;
+    }
+
+    .steps-grid::before {
+      content: '';
+      position: absolute;
+      top: 2.5rem;
+      left: 12%;
+      right: 12%;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--lime), transparent);
+    }
+
+    .step {
+      padding: 0 2rem;
+      text-align: center;
+      position: relative;
+    }
+
+    .step-num {
+      width: 5rem;
+      height: 5rem;
+      background: var(--moss);
+      border: 2px solid var(--lime);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--lime);
+      margin: 0 auto 1.5rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .step-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--white);
+      margin-bottom: 0.6rem;
+    }
+
+    .step-desc {
+      font-size: 0.85rem;
+      color: var(--fog);
+      line-height: 1.6;
+    }
+
+    /* ── IMPACT STRIP ── */
+    .impact {
+      padding: 6rem 4rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: rgba(126,200,80,0.1);
+    }
+
+    .impact-item {
+      background: var(--soil);
+      padding: 3rem 2rem;
+      text-align: center;
+      transition: background 0.3s;
+    }
+    .impact-item:hover { background: var(--earth); }
+
+    .impact-num {
+      font-family: 'Playfair Display', serif;
+      font-size: 3.5rem;
+      font-weight: 900;
+      color: var(--lime);
+      line-height: 1;
+      margin-bottom: 0.5rem;
+    }
+    .impact-label {
+      font-size: 0.85rem;
+      color: var(--fog);
+      line-height: 1.5;
+    }
+
+    /* ── CTA ── */
+    .cta-section {
+      padding: 8rem 4rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(78,140,63,0.15) 0%, transparent 70%);
+    }
+
+    .cta-section h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 5vw, 4.5rem);
+      font-weight: 900;
+      color: var(--white);
+      line-height: 1.1;
+      margin-bottom: 1.5rem;
+      position: relative;
+    }
+    .cta-section h2 em { color: var(--gold); font-style: italic; }
+
+    .cta-section p {
+      color: var(--fog);
+      font-size: 1.05rem;
+      max-width: 520px;
+      margin: 0 auto 3rem;
+      line-height: 1.7;
+      position: relative;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--earth);
+      border-top: 1px solid rgba(126,200,80,0.1);
+      padding: 3rem 4rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.2rem;
+      font-weight: 900;
+      color: var(--lime);
+    }
+    .footer-logo span { color: var(--gold); }
+
+    .footer-links {
+      display: flex;
+      gap: 2rem;
+      list-style: none;
+    }
+    .footer-links a {
+      font-size: 0.8rem;
+      color: var(--fog);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+    .footer-links a:hover { color: var(--lime); }
+
+    .footer-copy {
+      font-family: 'Space Mono', monospace;
+      font-size: 0.65rem;
+      color: var(--fog);
+      opacity: 0.5;
+      letter-spacing: 0.05em;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeSlideUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 1024px) {
+      nav { padding: 1rem 2rem; }
+      .hero { grid-template-columns: 1fr; padding: 7rem 2rem 4rem; }
+      .hero-right { padding-left: 0; flex-direction: row; flex-wrap: wrap; }
+      .stat-card { flex: 1; min-width: 200px; }
+      .features { padding: 5rem 2rem; }
+      .features-grid { grid-template-columns: 1fr 1fr; }
+      .feat-card:nth-child(n) { grid-column: span 1; }
+      .feat-card:nth-child(1) { grid-column: span 2; }
+      .steps-grid { grid-template-columns: repeat(2, 1fr); gap: 2rem; }
+      .steps-grid::before { display: none; }
+      .impact { grid-template-columns: repeat(2, 1fr); }
+      .how { padding: 5rem 2rem; }
+      .cta-section { padding: 5rem 2rem; }
+      footer { flex-direction: column; gap: 1.5rem; text-align: center; }
+    }
+
+    @media (max-width: 640px) {
+      .nav-links { display: none; }
+      .features-grid { grid-template-columns: 1fr; }
+      .feat-card:nth-child(n) { grid-column: span 1; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .impact { grid-template-columns: 1fr 1fr; }
+      .hero-actions { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">Agro<span>Fusion</span> </div>
+    <ul class="nav-links">
+      <li><a href="#features">Features</a></li>
+      <li><a href="#how">How It Works</a></li>
+      <li><a href="crop-planner.html">Crop Planner</a></li>
+      <li><a href="market.html">Market</a></li>
+    </ul>
+    <a href="#features" class="nav-cta">Get Started →</a>
+  </nav>
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track">
+      <span class="marquee-item">Mixed Crop Planner</span>
+      <span class="marquee-item">AI Disease Detection</span>
+      <span class="marquee-item">Smart Sell Timing</span>
+      <span class="marquee-item">Weather Advisory</span>
+      <span class="marquee-item">Mandi Price Tracker</span>
+      <span class="marquee-item">Seasonal Forecasting</span>
+      <span class="marquee-item">Mixed Crop Planner</span>
+      <span class="marquee-item">AI Disease Detection</span>
+      <span class="marquee-item">Smart Sell Timing</span>
+      <span class="marquee-item">Weather Advisory</span>
+      <span class="marquee-item">Mandi Price Tracker</span>
+      <span class="marquee-item">Seasonal Forecasting</span>
+    </div>
+  </div>
+
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-left">
+      <h1>
+        Farm <em>Smarter.</em><br>
+        Harvest <span class="gold">Better.</span>
+      </h1>
+      <p class="hero-sub">
+        AgroFusion  unifies crop intelligence, disease detection, market insights, and hyperlocal weather to give farmers a powerful edge.
+      </p>
+      <div class="hero-actions">
+        <a href="#features" class="btn-primary">Explore Features</a>
+        <a href="#how" class="btn-outline">See How It Works</a>
+      </div>
+    </div>
+
+    <!-- <div class="hero-right">
+      <div class="stat-card">
+        <div class="stat-icon">🌱</div>
+        <div>
+          <div class="stat-num">40%</div>
+          <div class="stat-label">Average yield increase with crop companion planning</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📈</div>
+        <div>
+          <div class="stat-num">87%</div>
+          <div class="stat-label">Accuracy in sell-timing prediction scores</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">⚡</div>
+        <div>
+          <div class="stat-num">&lt;3s</div>
+          <div class="stat-label">AI disease diagnosis from a single photo</div>
+        </div>
+      </div>
+    </div> -->
+  </s
+  ->
+  <section class="features" id="features">
+    <p class="section-label reveal">What We Offer</p>
+    <h2 class="section-title reveal">Four Tools.<br>One Platform.</h2>
+    <p class="section-sub reveal">Every feature is built around one goal — putting the power of AI in the hands of the farmer, not just the agronomist.</p>
+
+    <div class="features-grid">
+
+      <!-- CARD 1: Crop Planner -->
+      <a href="crop-planner.html" class="feat-card reveal">
+        <div class="feat-number">01 / 04</div>
+        <span class="feat-icon">🌾</span>
+        <div class="feat-title">Mixed Crop Companion Planner</div>
+        <p class="feat-desc">
+          Select your land size, soil type, season, and region. Our AI instantly suggests the best crop combinations to maximize yield, prevent soil depletion, and boost income per acre — no agronomist required.
+        </p>
+        <span class="feat-tag">Drag & Drop Grid</span>
+        <div class="feat-arrow">↗</div>
+      </a>
+
+      <!-- CARD 2: Sell Timing -->
+      <a href="market.html" class="feat-card reveal">
+        <div class="feat-number">02 / 04</div>
+        <span class="feat-icon">📈</span>
+        <div class="feat-title">Smart Sell-Timing Score</div>
+        <p class="feat-desc">
+          Stop guessing mandi prices. Our scoring engine compares current prices to 30-day averages, seasonal trends, and weather impact — then gives you a decisive verdict: <strong style="color:var(--lime)">Sell Now</strong>, <strong style="color:var(--gold)">Wait 7 Days</strong>, or <strong style="color:var(--amber)">Hold</strong>. No raw data. Just action.
+        </p>
+        <span class="feat-tag">AI Scoring Engine</span>
+        <div class="feat-arrow">↗</div>
+      </a>
+
+      <!-- CARD 3: Disease Detection -->
+      <a href="disease.html" class="feat-card reveal">
+        <div class="feat-number">03 / 04</div>
+        <span class="feat-icon">📸</span>
+        <div class="feat-title">AI Disease Detection</div>
+        <p class="feat-desc">
+          Upload a photo of your crop. Get an instant diagnosis — disease name, severity level, and both organic and chemical treatment options — powered by Claude AI vision.
+        </p>
+        <span class="feat-tag">Claude Vision AI</span>
+        <div class="feat-arrow">↗</div>
+      </a>
+
+      <!-- CARD 4: Weather -->
+      <a href="weather.html" class="feat-card reveal">
+        <div class="feat-number">04 / 04</div>
+        <span class="feat-icon">🌦️</span>
+        <div class="feat-title">Hyperlocal Weather Advisory</div>
+        <p class="feat-desc">
+          Not just a forecast — farm-specific action alerts. If heavy rain is 2 days away, we tell you to delay fertilizer. If a dry spell is ahead, we say irrigate now. GPS-based, real-time.
+        </p>
+        <span class="feat-tag">GPS + OpenWeatherMap</span>
+        <div class="feat-arrow">↗</div>
+      </a>
+
+      
+
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="how" id="how">
+    <p class="section-label reveal">The Process</p>
+    <h2 class="section-title reveal">From Field to Decision<br>in Four Steps.</h2>
+
+    <div class="steps-grid">
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <div class="step-title">Tell Us About Your Farm</div>
+        <p class="step-desc">Enter your location, land size, soil type, and available crops. Takes under 60 seconds.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">2</div>
+        <div class="step-title">AI Analyses Your Context</div>
+        <p class="step-desc">Our engine cross-references weather, mandi prices, and crop data specific to your region and season.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">3</div>
+        <div class="step-title">Get Actionable Recommendations</div>
+        <p class="step-desc">Receive clear verdicts — what to grow, when to sell, what disease is affecting your crop, and what weather action to take.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">4</div>
+        <div class="step-title">Act With Confidence</div>
+        <p class="step-desc">Every recommendation comes with a confidence score and a one-line reason — so you understand exactly why.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- IMPACT STRIP -->
+  <div class="impact">
+    <div class="impact-item reveal">
+      <div class="impact-num">12+</div>
+      <div class="impact-label">Crops supported in the companion planner</div>
+    </div>
+    <div class="impact-item reveal">
+      <div class="impact-num">30d</div>
+      <div class="impact-label">Price history analysed per sell-timing decision</div>
+    </div>
+    <div class="impact-item reveal">
+      <div class="impact-num">95%</div>
+      <div class="impact-label">Disease identification accuracy via AI vision</div>
+    </div>
+    <div class="impact-item reveal">
+      <div class="impact-num">Real-Time</div>
+      <div class="impact-label">Hyperlocal weather alerts from your GPS location</div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <section class="cta-section">
+    <h2>Ready to Farm<br>with <em>Intelligence?</em></h2>
+    <p>Join farmers who are already using AgroFusion AI to make smarter decisions — from seed to sale.</p>
+    <div class="cta-buttons">
+      <a href="crop-planner.html" class="btn-primary">Start with Crop Planner</a>
+      <a href="disease.html" class="btn-outline">Try Disease Detection</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">Agro<span>Fusion</span> AI</div>
+    <ul class="footer-links">
+      <li><a href="crop-planner.html">Crop Planner</a></li>
+      <li><a href="market.html">Market Score</a></li>
+      <li><a href="disease.html">Disease AI</a></li>
+      <li><a href="weather.html">Weather</a></li>
+    </ul>
+    <p class="footer-copy">© 2025 AgroFusion AI. Built for farmers.</p>
+  </footer>
+
+  <script>
+    // Scroll reveal
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+
+    // Nav shadow on scroll
+    window.addEventListener('scroll', () => {
+      const nav = document.querySelector('nav');
+      nav.style.boxShadow = window.scrollY > 50
+        ? '0 4px 30px rgba(0,0,0,0.4)' : 'none';
+    });
+  </script>
+</body>
+</html>
